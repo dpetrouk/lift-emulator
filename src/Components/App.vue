@@ -1,19 +1,7 @@
-<script>
-export default {
-  data() {
-    return {
-      count: 0
-    }
-  }
-}
+<script setup>
+import Building from './Building.vue';
 </script>
 
 <template>
-  <button @click="count++">Count is: {{ count }}</button>
+  <Building />
 </template>
-
-<style scoped>
-button {
-  font-weight: bold;
-}
-</style>
