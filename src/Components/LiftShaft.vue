@@ -10,12 +10,19 @@ defineProps(['liftShaftIndex']);
 const currentFloor = ref(1);
 const floorsDifference = ref(0);
 
+const liftCabinIsFlickering = ref(false);
+
 const changeCurrentFloor = (floor) => {
   floorsDifference.value = floor - currentFloor.value;
 
   setTimeout(() => {
     floorsDifference.value = 0;
     currentFloor.value = floor;
+    liftCabinIsFlickering.value = true;
+    setTimeout(() => {
+      liftCabinIsFlickering.value = false;
+      // лифт становится свободен
+    }, 3000);
   }, abs(floorsDifference.value) * 1000);
 };
 
@@ -33,7 +40,10 @@ const moveLift = () => changeCurrentFloor(generateRandomFloorNumber());
 <template>
   <div class="lift-shaft">
     <LiftCabin
-      class="lift-cabin-position"
+      :class="{
+        'lift-cabin-position': true,
+        'lift-cabin-flickering': liftCabinIsFlickering,
+      }"
       :style="{ transform: `translateY(${floorsDifference * (-100) + '%'})` }"
       :onclick="moveLift"
     />
@@ -63,5 +73,18 @@ const moveLift = () => changeCurrentFloor(generateRandomFloorNumber());
   grid-row: v-bind(floorsCount + 1 - currentFloor) / v-bind(floorsCount + 1 - currentFloor + 1);
   grid-column: 1 / 2;
   transition: transform v-bind(abs(floorsDifference) + 's');
+}
+
+.lift-cabin-flickering {
+  animation: 1s linear 3 alternate flickering;
+}
+
+@keyframes flickering {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 </style>
