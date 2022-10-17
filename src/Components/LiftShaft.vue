@@ -31,16 +31,6 @@ const changeCurrentFloor = (selectedFloor) => {
   }, abs(floorsDifference.value) * 1000);
 };
 
-const generateRandomFloorNumber = () => {
-  const result = Math.ceil(Math.random() * 5);
-  if (result === currentFloor.value) {
-    return generateRandomFloorNumber();
-  }
-  return result;
-};
-
-const moveLift = () => changeCurrentFloor(generateRandomFloorNumber());
-
 defineExpose({ changeCurrentFloor });
 </script>
 
@@ -52,7 +42,6 @@ defineExpose({ changeCurrentFloor });
         'lift-cabin-flickering': liftCabinIsFlickering,
       }"
       :style="{ transform: `translateY(${floorsDifference * 100 * (-1) + '%'})` }"
-      :onclick="moveLift"
     />
   </div>
 </template>
