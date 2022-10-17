@@ -1,27 +1,32 @@
 <script setup>
 import { ref } from 'vue';
 import { floorsCount } from '../buildingConfig.js';
+import lifts from '../store.js';
 import LiftCabin from './LiftCabin.vue';
 
 const { abs } = Math;
 
-defineProps(['liftShaftIndex']);
+const props = defineProps(['liftShaftIndex']);
 
-const currentFloor = ref(1);
+const liftState = lifts.selectLiftState(props.liftShaftIndex);
+
+const currentFloor = ref(liftState.currentFloor);
 const floorsDifference = ref(0);
 
 const liftCabinIsFlickering = ref(false);
 
-const changeCurrentFloor = (floor) => {
-  floorsDifference.value = floor - currentFloor.value;
+const changeCurrentFloor = (selectedFloor) => {
+  liftState.setIsAvailable(false);
+  floorsDifference.value = selectedFloor - currentFloor.value;
 
   setTimeout(() => {
     floorsDifference.value = 0;
-    currentFloor.value = floor;
+    currentFloor.value = selectedFloor;
     liftCabinIsFlickering.value = true;
     setTimeout(() => {
       liftCabinIsFlickering.value = false;
-      // лифт становится свободен
+      liftState.setCurrentFloor(selectedFloor);
+      liftState.setIsAvailable(true);
     }, 3000);
   }, abs(floorsDifference.value) * 1000);
 };
@@ -35,6 +40,8 @@ const generateRandomFloorNumber = () => {
 };
 
 const moveLift = () => changeCurrentFloor(generateRandomFloorNumber());
+
+defineExpose({ changeCurrentFloor });
 </script>
 
 <template>
@@ -44,7 +51,7 @@ const moveLift = () => changeCurrentFloor(generateRandomFloorNumber());
         'lift-cabin-position': true,
         'lift-cabin-flickering': liftCabinIsFlickering,
       }"
-      :style="{ transform: `translateY(${floorsDifference * (-100) + '%'})` }"
+      :style="{ transform: `translateY(${floorsDifference * 100 * (-1) + '%'})` }"
       :onclick="moveLift"
     />
   </div>

@@ -1,17 +1,35 @@
 <script setup>
-import { floorsCount, liftShaftsCount } from '../buildingConfig.js';
-import Floor from './Floor.vue';
+import { ref } from 'vue';
+import { liftShaftsCount, floorsCount } from '../buildingConfig.js';
+import lifts from '../store.js';
 import LiftShaft from './LiftShaft.vue';
+import Floor from './Floor.vue';
 
+const liftShaftsRefs = ref([]);
+const moveLift = (selectedLiftId, targetFloor) => {
+  liftShaftsRefs.value[selectedLiftId - 1].changeCurrentFloor(targetFloor);
+};
+
+const processLiftCall = (targetFloor) => {
+  if (lifts.isLiftOnTargetFloor(targetFloor)) {
+    return;
+  }
+  const selectedLiftId = lifts.selectProperLift(targetFloor);
+  if (!selectedLiftId) {
+    return;
+  }
+  moveLift(selectedLiftId, targetFloor);
+};
 </script>
 
 <template>
   <div class="building">
     <div class="lift-shafts">
       <LiftShaft
-        v-for="liftShaft in liftShaftsCount"
-        :key="liftShaft"
-        :liftShaftIndex="liftShaft"
+        v-for="liftShaftIndex in liftShaftsCount"
+        :key="liftShaftIndex"
+        :liftShaftIndex="liftShaftIndex"
+        ref="liftShaftsRefs"
       />
     </div>
     <div class="floors">
@@ -19,6 +37,7 @@ import LiftShaft from './LiftShaft.vue';
         v-for="floorIndex in floorsCount"
         :key="floorIndex"
         :floorIndex="floorIndex"
+        @call-lift="processLiftCall"
       />
     </div>
   </div>

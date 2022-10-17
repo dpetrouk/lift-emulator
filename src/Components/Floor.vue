@@ -8,7 +8,7 @@ defineProps(['floorIndex']);
   <div class="floor">
     <div class="lift-control-panel">
       <div>floor index: {{ floorIndex }}</div>
-      <button>button</button>
+      <button @click="$emit('callLift', floorIndex)">call</button>
     </div>
   </div>
 </template>
