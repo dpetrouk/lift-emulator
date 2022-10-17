@@ -13,11 +13,17 @@ const liftState = lifts.selectLiftState(props.liftShaftIndex);
 const currentFloor = ref(liftState.currentFloor);
 const floorsDifference = ref(0);
 
+const displayedMovingDirection = ref(null);
+const getDirectionArrow = (value) => (value > 0 ? '🡡' : '🡣');
+const displayedTargetFloor = ref(null);
+
 const isLiftCabinFlickering = ref(false);
 
 const moveLift = (targetFloor) => {
   liftState.setIsAvailable(false);
   floorsDifference.value = targetFloor - currentFloor.value;
+  displayedMovingDirection.value = getDirectionArrow(floorsDifference.value);
+  displayedTargetFloor.value = targetFloor;
 
   setTimeout(() => {
     floorsDifference.value = 0;
@@ -25,6 +31,8 @@ const moveLift = (targetFloor) => {
     isLiftCabinFlickering.value = true;
     setTimeout(() => {
       isLiftCabinFlickering.value = false;
+      displayedMovingDirection.value = null;
+      displayedTargetFloor.value = null;
       liftState.setCurrentFloor(targetFloor);
       liftState.setIsAvailable(true);
       callQueue.removeFromItemsInProcessing(targetFloor);
@@ -43,6 +51,8 @@ defineExpose({ moveLift });
         'lift-cabin-flickering': isLiftCabinFlickering,
       }"
       :style="{ transform: `translateY(${floorsDifference * 100 * (-1) + '%'})` }"
+      :moving-direction="displayedMovingDirection"
+      :target-floor="displayedTargetFloor"
     />
   </div>
 </template>
