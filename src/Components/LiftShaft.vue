@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { floorsCount } from '../buildingConfig.js';
-import lifts from '../store.js';
+import { lifts } from '../store.js';
 import LiftCabin from './LiftCabin.vue';
 
 const { abs } = Math;

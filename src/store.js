@@ -13,7 +13,9 @@ const lifts = {
     return this.items.filter((lift) => lift.isAvailable);
   },
   isLiftOnTargetFloor(targetFloor) {
-    return !!this.items.find((lift) => lift.currentFloor === targetFloor);
+    return !!this
+      .getAvailableLifts()
+      .find((lift) => lift.currentFloor === targetFloor);
   },
   selectProperLift(targetFloor) {
     const availableLifts = this.getAvailableLifts();
@@ -31,4 +33,24 @@ const lifts = {
   selectLiftState(liftShaftIndex) { return this.items[liftShaftIndex - 1]; },
 };
 
-export default lifts;
+const callQueue = {
+  isInProcessing: false,
+  setIsInProcessing(isInProcessing) { this.isInProcessing = isInProcessing; },
+  items: [],
+  isEmpty: true,
+  hasItem(targetFloor) { return this.items.includes(targetFloor); },
+  addItem(targetFloor) {
+    this.items.push(targetFloor);
+    this.isEmpty = false;
+  },
+  getFirstItem() { return this.items[0]; },
+  removeFirstItem() {
+    this.items = this.items.slice(1);
+    this.isEmpty = this.items.length === 0;
+  },
+};
+
+export {
+  lifts,
+  callQueue,
+};

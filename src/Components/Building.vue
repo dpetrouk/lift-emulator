@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { liftShaftsCount, floorsCount } from '../buildingConfig.js';
-import lifts from '../store.js';
+import { lifts, callQueue } from '../store.js';
 import LiftShaft from './LiftShaft.vue';
 import Floor from './Floor.vue';
 
@@ -10,12 +10,32 @@ const moveLift = (selectedLiftId, targetFloor) => {
   liftShaftsRefs.value[selectedLiftId - 1].changeCurrentFloor(targetFloor);
 };
 
-const processLiftCall = (targetFloor) => {
-  if (lifts.isLiftOnTargetFloor(targetFloor)) {
+const processCallQueue = () => {
+  if (callQueue.isEmpty) {
+    callQueue.setIsInProcessing(false);
     return;
   }
+  const targetFloor = callQueue.getFirstItem();
   const selectedLiftId = lifts.selectProperLift(targetFloor);
-  if (!selectedLiftId) {
+  if (selectedLiftId) {
+    moveLift(selectedLiftId, targetFloor);
+    callQueue.removeFirstItem();
+  }
+  setTimeout(processCallQueue, 300);
+};
+
+const processLiftCall = (targetFloor) => {
+  if (lifts.isLiftOnTargetFloor(targetFloor) || callQueue.hasItem(targetFloor)) {
+    return;
+  }
+
+  const selectedLiftId = lifts.selectProperLift(targetFloor);
+  if (!callQueue.isEmpty || !selectedLiftId) {
+    callQueue.addItem(targetFloor);
+    if (!callQueue.isInProcessing) {
+      callQueue.setIsInProcessing(true);
+      processCallQueue();
+    }
     return;
   }
   moveLift(selectedLiftId, targetFloor);
