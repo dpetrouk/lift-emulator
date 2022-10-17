@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { floorsCount } from '../buildingConfig.js';
-import { lifts } from '../store.js';
+import { lifts, callQueue } from '../store.js';
 import LiftCabin from './LiftCabin.vue';
 
 const { abs } = Math;
@@ -15,23 +15,24 @@ const floorsDifference = ref(0);
 
 const liftCabinIsFlickering = ref(false);
 
-const changeCurrentFloor = (selectedFloor) => {
+const moveLift = (targetFloor) => {
   liftState.setIsAvailable(false);
-  floorsDifference.value = selectedFloor - currentFloor.value;
+  floorsDifference.value = targetFloor - currentFloor.value;
 
   setTimeout(() => {
     floorsDifference.value = 0;
-    currentFloor.value = selectedFloor;
+    currentFloor.value = targetFloor;
     liftCabinIsFlickering.value = true;
     setTimeout(() => {
       liftCabinIsFlickering.value = false;
-      liftState.setCurrentFloor(selectedFloor);
+      liftState.setCurrentFloor(targetFloor);
       liftState.setIsAvailable(true);
+      callQueue.removeFromItemsInProcessing(targetFloor);
     }, 3000);
   }, abs(floorsDifference.value) * 1000);
 };
 
-defineExpose({ changeCurrentFloor });
+defineExpose({ moveLift });
 </script>
 
 <template>

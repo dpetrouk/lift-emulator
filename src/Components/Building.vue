@@ -6,8 +6,8 @@ import LiftShaft from './LiftShaft.vue';
 import Floor from './Floor.vue';
 
 const liftShaftsRefs = ref([]);
-const moveLift = (selectedLiftId, targetFloor) => {
-  liftShaftsRefs.value[selectedLiftId - 1].changeCurrentFloor(targetFloor);
+const moveSelectedLift = (selectedLiftId, targetFloor) => {
+  liftShaftsRefs.value[selectedLiftId - 1].moveLift(targetFloor);
 };
 
 const processCallQueue = () => {
@@ -18,27 +18,28 @@ const processCallQueue = () => {
   const targetFloor = callQueue.getFirstItem();
   const selectedLiftId = lifts.selectProperLift(targetFloor);
   if (selectedLiftId) {
-    moveLift(selectedLiftId, targetFloor);
+    callQueue.addToItemsInProcessing(targetFloor);
+    moveSelectedLift(selectedLiftId, targetFloor);
     callQueue.removeFirstItem();
+    processCallQueue();
   }
   setTimeout(processCallQueue, 300);
 };
 
-const processLiftCall = (targetFloor) => {
-  if (lifts.isLiftOnTargetFloor(targetFloor) || callQueue.hasItem(targetFloor)) {
-    return;
-  }
+const isCallToSkip = (targetFloor) => lifts.isLiftOnTargetFloor(targetFloor)
+    || callQueue.hasItemInProcessing(targetFloor)
+    || callQueue.hasItem(targetFloor);
 
-  const selectedLiftId = lifts.selectProperLift(targetFloor);
-  if (!callQueue.isEmpty || !selectedLiftId) {
-    callQueue.addItem(targetFloor);
-    if (!callQueue.isInProcessing) {
-      callQueue.setIsInProcessing(true);
-      processCallQueue();
-    }
+const processLiftCall = (targetFloor) => {
+  if (isCallToSkip(targetFloor)) {
     return;
   }
-  moveLift(selectedLiftId, targetFloor);
+  callQueue.addItem(targetFloor);
+
+  if (!callQueue.isInProcessing) {
+    callQueue.setIsInProcessing(true);
+    processCallQueue();
+  }
 };
 </script>
 

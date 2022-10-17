@@ -36,14 +36,18 @@ const lifts = {
 const callQueue = {
   isInProcessing: false,
   setIsInProcessing(isInProcessing) { this.isInProcessing = isInProcessing; },
+  itemsInProcessing: new Set(),
+  hasItemInProcessing(targetFloor) { return this.itemsInProcessing.has(targetFloor); },
+  addToItemsInProcessing(item) { this.itemsInProcessing.add(item); },
+  removeFromItemsInProcessing(item) { this.itemsInProcessing.delete(item); },
   items: [],
   isEmpty: true,
   hasItem(targetFloor) { return this.items.includes(targetFloor); },
+  getFirstItem() { return this.items[0]; },
   addItem(targetFloor) {
     this.items.push(targetFloor);
     this.isEmpty = false;
   },
-  getFirstItem() { return this.items[0]; },
   removeFirstItem() {
     this.items = this.items.slice(1);
     this.isEmpty = this.items.length === 0;
