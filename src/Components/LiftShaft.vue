@@ -13,7 +13,7 @@ const liftState = lifts.selectLiftState(props.liftShaftIndex);
 const currentFloor = ref(liftState.currentFloor);
 const floorsDifference = ref(0);
 
-const liftCabinIsFlickering = ref(false);
+const isLiftCabinFlickering = ref(false);
 
 const moveLift = (targetFloor) => {
   liftState.setIsAvailable(false);
@@ -22,9 +22,9 @@ const moveLift = (targetFloor) => {
   setTimeout(() => {
     floorsDifference.value = 0;
     currentFloor.value = targetFloor;
-    liftCabinIsFlickering.value = true;
+    isLiftCabinFlickering.value = true;
     setTimeout(() => {
-      liftCabinIsFlickering.value = false;
+      isLiftCabinFlickering.value = false;
       liftState.setCurrentFloor(targetFloor);
       liftState.setIsAvailable(true);
       callQueue.removeFromItemsInProcessing(targetFloor);
@@ -40,7 +40,7 @@ defineExpose({ moveLift });
     <LiftCabin
       :class="{
         'lift-cabin-position': true,
-        'lift-cabin-flickering': liftCabinIsFlickering,
+        'lift-cabin-flickering': isLiftCabinFlickering,
       }"
       :style="{ transform: `translateY(${floorsDifference * 100 * (-1) + '%'})` }"
     />
