@@ -1,4 +1,5 @@
-import { liftShaftsCount } from './buildingConfig.js';
+import { ref } from 'vue';
+import { liftShaftsCount, floorsCount } from './buildingConfig.js';
 
 const lifts = {
   items: Array(liftShaftsCount)
@@ -33,13 +34,28 @@ const lifts = {
   selectLiftState(liftShaftIndex) { return this.items[liftShaftIndex - 1]; },
 };
 
+const floors = {
+  items: Array(floorsCount)
+    .fill()
+    .map((_, index) => ({
+      id: index + 1,
+      isLiftCalled: ref(false),
+      setIsLiftCalled(value) { this.isLiftCalled.value = value; },
+    })),
+  selectFloorState(floorIndex) { return this.items[floorIndex - 1]; },
+};
+
 const callQueue = {
   isInProcessing: false,
   setIsInProcessing(isInProcessing) { this.isInProcessing = isInProcessing; },
   itemsInProcessing: new Set(),
   hasItemInProcessing(targetFloor) { return this.itemsInProcessing.has(targetFloor); },
   addToItemsInProcessing(item) { this.itemsInProcessing.add(item); },
-  removeFromItemsInProcessing(item) { this.itemsInProcessing.delete(item); },
+  removeFromItemsInProcessing(item) {
+    this.itemsInProcessing.delete(item);
+
+    floors.selectFloorState(item).setIsLiftCalled(false);
+  },
   items: [],
   isEmpty: true,
   hasItem(targetFloor) { return this.items.includes(targetFloor); },
@@ -47,6 +63,9 @@ const callQueue = {
   addItem(targetFloor) {
     this.items.push(targetFloor);
     this.isEmpty = false;
+
+    const floorState = floors.selectFloorState(targetFloor);
+    floorState.setIsLiftCalled(true);
   },
   removeFirstItem() {
     this.items = this.items.slice(1);
@@ -56,5 +75,6 @@ const callQueue = {
 
 export {
   lifts,
+  floors,
   callQueue,
 };

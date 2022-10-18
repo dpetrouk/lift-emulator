@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { liftShaftsCount, floorsCount } from '../buildingConfig.js';
-import { lifts, callQueue } from '../store.js';
+import { lifts, floors, callQueue } from '../store.js';
 import LiftShaft from './LiftShaft.vue';
 import Floor from './Floor.vue';
 
@@ -58,6 +58,7 @@ const processLiftCall = (targetFloor) => {
         v-for="floorIndex in floorsCount"
         :key="floorIndex"
         :floorIndex="floorIndex"
+        :floorState="floors.selectFloorState(floorIndex)"
         @call-lift="processLiftCall"
       />
     </div>
