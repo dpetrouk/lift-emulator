@@ -1,16 +1,14 @@
 <script setup>
 import { ref } from 'vue';
 import { floorsCount } from '../buildingConfig.js';
-import { lifts, callQueue } from '../store.js';
+import { callQueue } from '../store.js';
 import LiftCabin from './LiftCabin.vue';
 
 const { abs } = Math;
 
-const props = defineProps(['liftShaftIndex']);
+const props = defineProps(['liftShaftIndex', 'liftState']);
 
-const liftState = lifts.selectLiftState(props.liftShaftIndex);
-
-const currentFloor = ref(liftState.currentFloor);
+const currentFloor = ref(props.liftState.currentFloor);
 const floorsDifference = ref(0);
 
 const displayedMovingDirection = ref(null);
@@ -20,7 +18,7 @@ const displayedTargetFloor = ref(null);
 const isLiftCabinFlickering = ref(false);
 
 const moveLift = (targetFloor) => {
-  liftState.setIsAvailable(false);
+  props.liftState.setIsAvailable(false);
   floorsDifference.value = targetFloor - currentFloor.value;
   displayedMovingDirection.value = getDirectionArrow(floorsDifference.value);
   displayedTargetFloor.value = targetFloor;
@@ -33,8 +31,8 @@ const moveLift = (targetFloor) => {
       isLiftCabinFlickering.value = false;
       displayedMovingDirection.value = null;
       displayedTargetFloor.value = null;
-      liftState.setCurrentFloor(targetFloor);
-      liftState.setIsAvailable(true);
+      props.liftState.setCurrentFloor(targetFloor);
+      props.liftState.setIsAvailable(true);
       callQueue.removeFromItemsInProcessing(targetFloor);
     }, 3000);
   }, abs(floorsDifference.value) * 1000);

@@ -50,6 +50,7 @@ const processLiftCall = (targetFloor) => {
         v-for="liftShaftIndex in liftShaftsCount"
         :key="liftShaftIndex"
         :liftShaftIndex="liftShaftIndex"
+        :liftState="lifts.selectLiftState(liftShaftIndex)"
         ref="liftShaftsRefs"
       />
     </div>
