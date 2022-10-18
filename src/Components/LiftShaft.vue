@@ -1,41 +1,44 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { floorsCount } from '../buildingConfig.js';
 import { callQueue } from '../store.js';
 import LiftCabin from './LiftCabin.vue';
 
-const { abs } = Math;
+const liftFlickeringDuration = 3000;
+const getDirectionArrow = (value) => (value > 0 ? '🡡' : '🡣');
 
 const props = defineProps(['liftShaftIndex', 'liftState']);
 
-const currentFloor = ref(props.liftState.currentFloor);
+const liftCabinGridRowStart = computed(
+  () => floorsCount + 1 - props.liftState.currentFloor.value,
+);
+
 const floorsDifference = ref(0);
+const liftCabinTransitionDuration = computed(() => Math.abs(floorsDifference.value));
+const liftCabinTransformValue = computed(() => `translateY(${floorsDifference.value * 100 * (-1)}%)`);
 
 const displayedMovingDirection = ref(null);
-const getDirectionArrow = (value) => (value > 0 ? '🡡' : '🡣');
 const displayedTargetFloor = ref(null);
 
-const isLiftCabinFlickering = ref(false);
+const isLiftCabinFlickering = computed(() => props.liftState.state.value === 'arrived');
 
 const moveLift = (targetFloor) => {
-  props.liftState.setIsAvailable(false);
-  floorsDifference.value = targetFloor - currentFloor.value;
+  props.liftState.setState('moving');
+  floorsDifference.value = targetFloor - props.liftState.currentFloor.value;
   displayedMovingDirection.value = getDirectionArrow(floorsDifference.value);
   displayedTargetFloor.value = targetFloor;
 
   setTimeout(() => {
+    props.liftState.setState('arrived');
+    props.liftState.setCurrentFloor(targetFloor);
+    callQueue.removeFromItemsInProcessing(targetFloor);
     floorsDifference.value = 0;
-    currentFloor.value = targetFloor;
-    isLiftCabinFlickering.value = true;
     setTimeout(() => {
-      isLiftCabinFlickering.value = false;
       displayedMovingDirection.value = null;
       displayedTargetFloor.value = null;
-      props.liftState.setCurrentFloor(targetFloor);
-      props.liftState.setIsAvailable(true);
-      callQueue.removeFromItemsInProcessing(targetFloor);
-    }, 3000);
-  }, abs(floorsDifference.value) * 1000);
+      props.liftState.setState('available');
+    }, liftFlickeringDuration);
+  }, liftCabinTransitionDuration.value * 1000);
 };
 
 defineExpose({ moveLift });
@@ -48,7 +51,7 @@ defineExpose({ moveLift });
         'lift-cabin-position': true,
         'lift-cabin-flickering': isLiftCabinFlickering,
       }"
-      :style="{ transform: `translateY(${floorsDifference * 100 * (-1) + '%'})` }"
+      :style="{ transform: liftCabinTransformValue }"
       :moving-direction="displayedMovingDirection"
       :target-floor="displayedTargetFloor"
     />
@@ -75,9 +78,9 @@ defineExpose({ moveLift });
 }
 
 .lift-cabin-position {
-  grid-row: v-bind(floorsCount + 1 - currentFloor) / v-bind(floorsCount + 1 - currentFloor + 1);
+  grid-row: v-bind(liftCabinGridRowStart) / v-bind(liftCabinGridRowStart + 1);
   grid-column: 1 / 2;
-  transition: transform v-bind(abs(floorsDifference) + 's');
+  transition: transform v-bind(liftCabinTransitionDuration + 's');
 }
 
 .lift-cabin-flickering {

@@ -3,27 +3,28 @@ import { liftShaftsCount, floorsCount } from './buildingConfig.js';
 
 const lifts = {
   items: Array(liftShaftsCount)
-    .fill({
-      isAvailable: true,
-      setIsAvailable(value) { this.isAvailable = value; },
-      currentFloor: 1,
-      setCurrentFloor(value) { this.currentFloor = value; },
-    })
-    .map((lift, index) => ({ ...lift, id: index + 1 })),
+    .fill()
+    .map((_, index) => ({
+      id: index + 1,
+      state: ref('available'), // other states: 'moving' / 'arrived'
+      setState(value) { this.state.value = value; },
+      currentFloor: ref(1),
+      setCurrentFloor(value) { this.currentFloor.value = value; },
+    })),
   getAvailableLifts() {
-    return this.items.filter((lift) => lift.isAvailable);
+    return this.items.filter((lift) => lift.state.value === 'available');
   },
   isLiftOnTargetFloor(targetFloor) {
-    return !!this
-      .getAvailableLifts()
-      .find((lift) => lift.currentFloor === targetFloor);
+    return !!this.items
+      .filter((lift) => lift.state.value === 'available' || lift.state.value === 'arrived')
+      .find((lift) => lift.currentFloor.value === targetFloor);
   },
   selectProperLift(targetFloor) {
     const availableLifts = this.getAvailableLifts();
     let minDistance = Infinity;
     let closestLiftId = null;
     availableLifts.forEach((lift) => {
-      const currentLiftDistance = Math.abs(lift.currentFloor - targetFloor);
+      const currentLiftDistance = Math.abs(lift.currentFloor.value - targetFloor);
       if (currentLiftDistance < minDistance) {
         minDistance = currentLiftDistance;
         closestLiftId = lift.id;
