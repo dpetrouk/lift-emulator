@@ -24,8 +24,6 @@ const movingDirection = computed(() => getDirectionArrow(props.movingDirection.v
 
 <style>
 .lift-cabin {
-  box-sizing: border-box;
-
   border-radius: 4%;
 
   background-color: rgb(164, 173, 164);
@@ -33,20 +31,20 @@ const movingDirection = computed(() => getDirectionArrow(props.movingDirection.v
 
 .lift-display-board {
   position: absolute;
-  padding: 1% 2% 1% 2%;
-  display: inline-block;
+
   margin: 2% auto 0 auto;
+  padding: 1% 2% 1% 2%;
   left: 0;
   right: 0;
-  text-align: center;
+
   width: fit-content;
   height: fit-content;
 
   border-radius: 18%;
 
-  font-size: 80%;
-  font-family: sans-serif;
+  font: inherit;
   color: white;
+
   background-color: rgb(0, 0, 0, 0.4);
 }
 </style>

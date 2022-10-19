@@ -1,10 +1,8 @@
 import { ref } from 'vue';
 import { liftShaftsCount, floorsCount } from './buildingConfig.js';
 
-const loadFromLocalStorage = (property) => {
-  const data = JSON.parse(localStorage.getItem(property));
-  return data;
-};
+const loadFromLocalStorage = (property) => JSON.parse(localStorage.getItem(property));
+
 const saveInLocalStorage = (property, value) => {
   localStorage.setItem(property, JSON.stringify(value));
 };
@@ -49,6 +47,7 @@ const lifts = {
       movingDirection: ref(loadFromLocalStorage(`Lift${index + 1}MovingDirection`) || 0),
       updateMovingDirection() {
         this.movingDirection.value = Math.sign(this.floorsDifference.value);
+
         saveInLocalStorage(`Lift${index + 1}MovingDirection`, this.movingDirection.value);
       },
     })),

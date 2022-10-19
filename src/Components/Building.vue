@@ -89,32 +89,28 @@ onMounted(() => {
 
 <style>
 .building {
-  box-sizing: border-box;
-
   padding: 2%;
 
   display: grid;
   grid-template: repeat(v-bind(floorsCount), 1fr) / repeat(v-bind(liftShaftsCount + 1), 1fr);
 
+  font-family: sans-serif;
+  font-size: 80%;
+
   background-color: rgb(228, 228, 228, 0.3);
 }
 
 .lift-shafts {
-  box-sizing: border-box;
+  grid-row: 1 / v-bind(floorsCount + 1);
+  grid-column: 1 / v-bind(liftShaftsCount + 1);
 
   display: grid;
-  grid-column: 1 / v-bind(liftShaftsCount + 1);
-  grid-row: 1 / v-bind(floorsCount + 1);
 }
 .floors {
-  position: relative;
-
-  box-sizing: border-box;
+  grid-column: 1 / v-bind(liftShaftsCount + 1 + 1);
+  grid-row: 1 / v-bind(floorsCount + 1);
 
   display: flex;
   flex-direction: column-reverse;
-
-  grid-column: 1 / v-bind(liftShaftsCount + 1 + 1);
-  grid-row: 1 / v-bind(floorsCount + 1);
 }
 </style>

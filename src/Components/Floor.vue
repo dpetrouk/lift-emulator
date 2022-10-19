@@ -23,8 +23,6 @@ const buttonChar = computed(() => (props.floorState.isLiftCalled.value ? '⦿' :
 
 <style scoped>
 .floor {
-  box-sizing: border-box;
-
   display: grid;
   grid-template-rows: 1fr;
   grid-template-columns: repeat(v-bind(liftShaftsCount + 1), 1fr);
@@ -42,39 +40,39 @@ const buttonChar = computed(() => (props.floorState.isLiftCalled.value ? '⦿' :
   border-top-width: thin;
 }
 .lift-control-panel {
-  position: relative;
-  padding: 3%;
+  grid-row: 1 / 2;
+  grid-column: v-bind(liftShaftsCount + 1) / v-bind(liftShaftsCount + 1 + 1);
+
   margin: 5px;
+  padding: 3%;
   width: fit-content;
   height: fit-content;
 
   border-radius: 9%;
-
-  grid-column: v-bind(liftShaftsCount + 1) / v-bind(liftShaftsCount + 1 + 1);
-  grid-row: 1 / 2;
 
   background-color: rgb(228, 228, 228, 0.7);
 }
 
 .floor-index {
   margin: 5px;
-  font-size: 80%;
+
+  font: inherit;
   font-weight: bold;
-  font-family: sans-serif;
 }
 
 button {
-  /* width: 10%;
-  height: 40%; */
   padding: 3px;
   line-height: 90%;
-  /* margin: 0; */
+
   border: 1px solid;
   border-color: v-bind(buttonBorderColor);
   border-radius: 13%;
+
   font-size: 14px;
   color: rgb(83, 83, 83);
+
   opacity: 1;
+
   cursor: pointer;
 }
 
