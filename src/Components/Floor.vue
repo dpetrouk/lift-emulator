@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { liftShaftsCount } from '../buildingConfig.js';
 
-const props = defineProps(['floorIndex', 'floorState']);
+const props = defineProps(['floorState']);
 
 const buttonBorderColor = computed(() => (props.floorState.isLiftCalled.value ? 'rgb(126, 126, 126)' : 'rgb(255, 255, 255)'));
 const buttonChar = computed(() => (props.floorState.isLiftCalled.value ? '⦿' : '⦾'));
@@ -11,9 +11,9 @@ const buttonChar = computed(() => (props.floorState.isLiftCalled.value ? '⦿' :
 <template>
   <div class="floor">
     <div class="lift-control-panel">
-      <div class="floor-index">{{ floorIndex }}</div>
+      <div class="floor-index">{{ props.floorState.id }}</div>
       <button
-        @click="() => $emit('callLift', floorIndex)"
+        @click="() => $emit('callLift', props.floorState.id)"
       >
         {{ buttonChar }}
       </button>

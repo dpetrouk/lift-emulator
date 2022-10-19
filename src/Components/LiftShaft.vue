@@ -1,47 +1,24 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { floorsCount } from '../buildingConfig.js';
-import { callQueue } from '../store.js';
+import { computed } from 'vue';
+import { floorsCount, liftCabinFlickeringDuration } from '../buildingConfig.js';
 import LiftCabin from './LiftCabin.vue';
 
-const liftFlickeringDuration = 3000;
-const getDirectionArrow = (value) => (value > 0 ? '🡡' : '🡣');
+const props = defineProps(['lift']);
+// console.log('floorsDifference: ', props.lift.floorsDifference.value);
 
-const props = defineProps(['liftShaftIndex', 'liftState']);
-
-const liftCabinGridRowStart = computed(
-  () => floorsCount + 1 - props.liftState.currentFloor.value,
+const liftShaftGridColumn = computed(
+  () => `${props.lift.id} / ${props.lift.id + 1}`,
 );
 
-const floorsDifference = ref(0);
-const liftCabinTransitionDuration = computed(() => Math.abs(floorsDifference.value));
-const liftCabinTransformValue = computed(() => `translateY(${floorsDifference.value * 100 * (-1)}%)`);
+const liftCabinGridRowStart = computed(
+  () => floorsCount + 1 - props.lift.currentFloor.value,
+);
 
-const displayedMovingDirection = ref(null);
-const displayedTargetFloor = ref(null);
+const liftCabinMovingDuration = computed(() => props.lift.movingDuration.value);
+const liftCabinTransformValue = computed(() => `translateY(${props.lift.floorsDifference.value * 100 * (-1)}%)`);
+// console.log('liftCabinTransformValue: ', liftCabinTransformValue.value);
 
-const isLiftCabinFlickering = computed(() => props.liftState.state.value === 'arrived');
-
-const moveLift = (targetFloor) => {
-  props.liftState.setState('moving');
-  floorsDifference.value = targetFloor - props.liftState.currentFloor.value;
-  displayedMovingDirection.value = getDirectionArrow(floorsDifference.value);
-  displayedTargetFloor.value = targetFloor;
-
-  setTimeout(() => {
-    props.liftState.setState('arrived');
-    props.liftState.setCurrentFloor(targetFloor);
-    callQueue.removeFromItemsInProcessing(targetFloor);
-    floorsDifference.value = 0;
-    setTimeout(() => {
-      displayedMovingDirection.value = null;
-      displayedTargetFloor.value = null;
-      props.liftState.setState('available');
-    }, liftFlickeringDuration);
-  }, liftCabinTransitionDuration.value * 1000);
-};
-
-defineExpose({ moveLift });
+const isLiftCabinFlickering = computed(() => props.lift.state.value === 'arrived');
 </script>
 
 <template>
@@ -52,8 +29,9 @@ defineExpose({ moveLift });
         'lift-cabin-flickering': isLiftCabinFlickering,
       }"
       :style="{ transform: liftCabinTransformValue }"
-      :moving-direction="displayedMovingDirection"
-      :target-floor="displayedTargetFloor"
+      :lift-state="lift.state"
+      :moving-direction="props.lift.movingDirection"
+      :target-floor="lift.targetFloor"
     />
   </div>
 </template>
@@ -68,9 +46,9 @@ defineExpose({ moveLift });
   border-color: #cecece;
   border-width: 0 3px 0 3px;
 
-  background-color:rgba(95, 158, 160, 0.315);
+  background-color:rgb(209, 219, 219, 0.32);
 
-  grid-column: v-bind(liftShaftIndex) / v-bind(liftShaftIndex + 1);
+  grid-column: v-bind(liftShaftGridColumn);
 
   display: grid;
   grid-template-columns: 1fr;
@@ -80,11 +58,11 @@ defineExpose({ moveLift });
 .lift-cabin-position {
   grid-row: v-bind(liftCabinGridRowStart) / v-bind(liftCabinGridRowStart + 1);
   grid-column: 1 / 2;
-  transition: transform v-bind(liftCabinTransitionDuration + 's');
+  transition: transform v-bind(liftCabinMovingDuration + 's');
 }
 
 .lift-cabin-flickering {
-  animation: 1s linear 3 alternate flickering;
+  animation: 1s linear v-bind(liftCabinFlickeringDuration) alternate flickering;
 }
 
 @keyframes flickering {

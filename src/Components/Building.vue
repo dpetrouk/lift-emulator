@@ -1,46 +1,80 @@
 <script setup>
-import { ref } from 'vue';
-import { liftShaftsCount, floorsCount } from '../buildingConfig.js';
+import { onMounted } from 'vue';
+import { liftShaftsCount, floorsCount, liftCabinFlickeringDuration } from '../buildingConfig.js';
 import { lifts, floors, callQueue } from '../store.js';
 import LiftShaft from './LiftShaft.vue';
 import Floor from './Floor.vue';
 
-const liftShaftsRefs = ref([]);
-const moveSelectedLift = (selectedLiftId, targetFloor) => {
-  liftShaftsRefs.value[selectedLiftId - 1].moveLift(targetFloor);
+const moveSelectedLift = (lift, targetFloor) => {
+  // console.log('3 - moveSelectedLift');
+  lift.setTargetFloor(targetFloor);
+  lift.setState('moving');
+  setTimeout(() => {
+    lift.setState('arrived');
+    lift.setCurrentFloor(targetFloor);
+    callQueue.removeCallFromExecution(targetFloor);
+    setTimeout(
+      () => lift.setState('available'),
+      liftCabinFlickeringDuration * 1000,
+    );
+  }, lift.movingDuration.value * 1000);
 };
 
 const processCallQueue = () => {
-  if (callQueue.isEmpty) {
+  // console.log('2 - processCallQueue');
+  if (callQueue.isCallsToProcessEmpty()) {
     callQueue.setIsInProcessing(false);
+    // console.log('2 - call queue is empty, stopping call queue processing');
     return;
   }
-  const targetFloor = callQueue.getFirstItem();
-  const selectedLiftId = lifts.selectProperLift(targetFloor);
-  if (selectedLiftId) {
-    callQueue.addToItemsInProcessing(targetFloor);
-    moveSelectedLift(selectedLiftId, targetFloor);
-    callQueue.removeFirstItem();
+  const targetFloor = callQueue.getCallToProcess();
+  const selectedLift = lifts.selectProperLift(targetFloor);
+  if (selectedLift) {
+    callQueue.moveCallToCallsInExecution(selectedLift.id, targetFloor);
+    moveSelectedLift(selectedLift, targetFloor);
     processCallQueue();
+    return;
   }
-  setTimeout(processCallQueue, 300);
+  setTimeout(processCallQueue, 500);
 };
 
 const isCallToSkip = (targetFloor) => lifts.isLiftOnTargetFloor(targetFloor)
-    || callQueue.hasItemInProcessing(targetFloor)
-    || callQueue.hasItem(targetFloor);
+    || callQueue.hasTargetFloorInProcessing(targetFloor)
+    || callQueue.hasTargetFloorAmongCallsToProcess(targetFloor);
 
 const processLiftCall = (targetFloor) => {
+  // console.log('-----------------------');
+  // console.log('1 - processLiftCall');
   if (isCallToSkip(targetFloor)) {
+    // console.log('1 - skipping call');
     return;
   }
-  callQueue.addItem(targetFloor);
-
+  callQueue.addCallToProcess(targetFloor);
   if (!callQueue.isInProcessing) {
     callQueue.setIsInProcessing(true);
+    // console.log('1 - call queue is NOT in processing');
     processCallQueue();
   }
 };
+
+const resumeProcesses = () => {
+  callQueue.callsInExecution
+    .forEach((call) => {
+      const lift = lifts.selectLift(call.liftId);
+      // console.log({ lift });
+      moveSelectedLift(lift, call.targetFloor);
+    });
+  lifts.items
+    .filter(({ state }) => state.value === 'arrived')
+    .forEach((lift) => setTimeout(() => lift.setState('available'), liftCabinFlickeringDuration * 1000));
+  processCallQueue();
+};
+
+onMounted(() => {
+  // localStorage.clear();
+  // console.log('0 - callsInExecution: ', callQueue.callsInExecution);
+  setTimeout(resumeProcesses, 30);
+});
 </script>
 
 <template>
@@ -49,16 +83,13 @@ const processLiftCall = (targetFloor) => {
       <LiftShaft
         v-for="liftShaftIndex in liftShaftsCount"
         :key="liftShaftIndex"
-        :liftShaftIndex="liftShaftIndex"
-        :liftState="lifts.selectLiftState(liftShaftIndex)"
-        ref="liftShaftsRefs"
+        :lift="lifts.selectLift(liftShaftIndex)"
       />
     </div>
     <div class="floors">
       <Floor
         v-for="floorIndex in floorsCount"
         :key="floorIndex"
-        :floorIndex="floorIndex"
         :floorState="floors.selectFloorState(floorIndex)"
         @call-lift="processLiftCall"
       />
@@ -75,7 +106,7 @@ const processLiftCall = (targetFloor) => {
   display: grid;
   grid-template: repeat(v-bind(floorsCount), 1fr) / repeat(v-bind(liftShaftsCount + 1), 1fr);
 
-  background-color: rgb(235, 255, 245);
+  background-color: rgb(228, 228, 228, 0.3);
 }
 
 .lift-shafts {

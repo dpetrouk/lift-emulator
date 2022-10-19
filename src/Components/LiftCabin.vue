@@ -1,6 +1,12 @@
 <script setup>
-defineProps(['movingDirection', 'targetFloor']);
+import { computed } from 'vue';
 
+const props = defineProps(['liftState', 'movingDirection', 'targetFloor']);
+
+const isDisplayBoardVisible = computed(() => props.liftState.value !== 'available');
+
+const getDirectionArrow = (value) => (value > 0 ? '🡡' : '🡣');
+const movingDirection = computed(() => getDirectionArrow(props.movingDirection.value));
 </script>
 
 <template>
@@ -9,9 +15,9 @@ defineProps(['movingDirection', 'targetFloor']);
   >
     <div
       class="lift-display-board"
-      v-show="movingDirection"
+      v-show="isDisplayBoardVisible"
     >
-      {{ `${movingDirection} ${targetFloor}` }}
+      {{ `${movingDirection} ${targetFloor.value}` }}
     </div>
   </div>
 </template>
@@ -19,10 +25,12 @@ defineProps(['movingDirection', 'targetFloor']);
 <style>
 .lift-cabin {
   box-sizing: border-box;
+  /* width: 60px;
+  height: 80px; */
 
   border-radius: 4%;
 
-  background-color: rgb(121, 218, 121);
+  background-color: rgb(164, 173, 164);
 }
 
 .lift-display-board {
@@ -39,6 +47,7 @@ defineProps(['movingDirection', 'targetFloor']);
   border-radius: 18%;
 
   font-size: 80%;
+  font-family: sans-serif;
   color: white;
   background-color: rgb(0, 0, 0, 0.4);
 }

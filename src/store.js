@@ -1,15 +1,59 @@
 import { ref } from 'vue';
 import { liftShaftsCount, floorsCount } from './buildingConfig.js';
 
+const loadFromLocalStorage = (property) => {
+  const data = JSON.parse(localStorage.getItem(property));
+  // console.log('loadFromLocalStorage: ', property, data);
+  return data;
+};
+const saveInLocalStorage = (property, value) => {
+  localStorage.setItem(property, JSON.stringify(value));
+  // console.log('saveInLocalStorage: ', property, value);
+};
+
 const lifts = {
   items: Array(liftShaftsCount)
     .fill()
     .map((_, index) => ({
       id: index + 1,
-      state: ref('available'), // other states: 'moving' / 'arrived'
-      setState(value) { this.state.value = value; },
-      currentFloor: ref(1),
-      setCurrentFloor(value) { this.currentFloor.value = value; },
+      state: ref(loadFromLocalStorage(`Lift${index + 1}State`) || 'available'), // other states: 'moving' / 'arrived'
+      setState(value) {
+        this.state.value = value;
+        // console.log('Lift ', index + 1, 'setState:', value);
+        if (value === 'moving') {
+          this.updateMovingDirection();
+        }
+
+        saveInLocalStorage(`Lift${index + 1}State`, value);
+      },
+      currentFloor: ref(loadFromLocalStorage(`Lift${index + 1}CurrentFloor`) || 1),
+      setCurrentFloor(value) {
+        this.currentFloor.value = value;
+        this.updateFloorsDifference();
+
+        saveInLocalStorage(`Lift${index + 1}CurrentFloor`, value);
+      },
+      targetFloor: ref(loadFromLocalStorage(`Lift${index + 1}CurrentFloor`) || 1),
+      setTargetFloor(value) {
+        this.targetFloor.value = value;
+        this.updateFloorsDifference();
+
+        saveInLocalStorage(`Lift${index + 1}TargetFloor`, value);
+      },
+      floorsDifference: ref(0),
+      updateFloorsDifference() {
+        this.floorsDifference.value = this.targetFloor.value - this.currentFloor.value;
+        this.updateMovingDuration();
+      },
+      movingDuration: ref(0),
+      updateMovingDuration() {
+        this.movingDuration.value = Math.abs(this.floorsDifference.value);
+      },
+      movingDirection: ref(loadFromLocalStorage(`Lift${index + 1}MovingDirection`) || 0),
+      updateMovingDirection() {
+        this.movingDirection.value = Math.sign(this.floorsDifference.value);
+        saveInLocalStorage(`Lift${index + 1}MovingDirection`, this.movingDirection.value);
+      },
     })),
   getAvailableLifts() {
     return this.items.filter((lift) => lift.state.value === 'available');
@@ -22,17 +66,17 @@ const lifts = {
   selectProperLift(targetFloor) {
     const availableLifts = this.getAvailableLifts();
     let minDistance = Infinity;
-    let closestLiftId = null;
+    let closestLift = null;
     availableLifts.forEach((lift) => {
       const currentLiftDistance = Math.abs(lift.currentFloor.value - targetFloor);
       if (currentLiftDistance < minDistance) {
         minDistance = currentLiftDistance;
-        closestLiftId = lift.id;
+        closestLift = lift;
       }
     });
-    return closestLiftId;
+    return closestLift;
   },
-  selectLiftState(liftShaftIndex) { return this.items[liftShaftIndex - 1]; },
+  selectLift(liftShaftIndex) { return this.items[liftShaftIndex - 1]; },
 };
 
 const floors = {
@@ -40,37 +84,63 @@ const floors = {
     .fill()
     .map((_, index) => ({
       id: index + 1,
-      isLiftCalled: ref(false),
-      setIsLiftCalled(value) { this.isLiftCalled.value = value; },
+      isLiftCalled: ref(loadFromLocalStorage(`Floor${index + 1}IsLiftCalled`) || false),
     })),
   selectFloorState(floorIndex) { return this.items[floorIndex - 1]; },
+  setIsLiftCalled(floorIndex, value) {
+    // console.log('selectFloorState:', this.selectFloorState(floorIndex));
+    this.selectFloorState(floorIndex).isLiftCalled.value = value;
+
+    saveInLocalStorage(`Floor${floorIndex}IsLiftCalled`, value);
+  },
 };
 
 const callQueue = {
   isInProcessing: false,
-  setIsInProcessing(isInProcessing) { this.isInProcessing = isInProcessing; },
-  itemsInProcessing: new Set(),
-  hasItemInProcessing(targetFloor) { return this.itemsInProcessing.has(targetFloor); },
-  addToItemsInProcessing(item) { this.itemsInProcessing.add(item); },
-  removeFromItemsInProcessing(item) {
-    this.itemsInProcessing.delete(item);
-
-    floors.selectFloorState(item).setIsLiftCalled(false);
+  setIsInProcessing(value) { this.isInProcessing = value; },
+  callsInExecution: loadFromLocalStorage('callsInExecution') || [],
+  hasTargetFloorInProcessing(targetFloor) {
+    const result = !!this.callsInExecution.find((item) => item.targetFloor === targetFloor);
+    // console.log('hasTargetFloorInProcessing: ', targetFloor, result);
+    return result;
   },
-  items: [],
-  isEmpty: true,
-  hasItem(targetFloor) { return this.items.includes(targetFloor); },
-  getFirstItem() { return this.items[0]; },
-  addItem(targetFloor) {
-    this.items.push(targetFloor);
-    this.isEmpty = false;
+  moveCallToCallsInExecution(liftId, targetFloor) {
+    // console.log('3 - moveCallToCallsInExecution');
+    this.callsToProcess = this.callsToProcess.slice(1);
+    this.callsInExecution.push({ liftId, targetFloor });
 
-    const floorState = floors.selectFloorState(targetFloor);
-    floorState.setIsLiftCalled(true);
+    this.setCallsToProcessInLocalStorage();
+    this.setCallsInExecutionInLocalStorage();
   },
-  removeFirstItem() {
-    this.items = this.items.slice(1);
-    this.isEmpty = this.items.length === 0;
+  removeCallFromExecution(targetFloor) {
+    this.callsInExecution = this.callsInExecution
+      .filter((item) => item.targetFloor !== targetFloor);
+
+    floors.setIsLiftCalled(targetFloor, false);
+
+    this.setCallsInExecutionInLocalStorage();
+  },
+  setCallsInExecutionInLocalStorage() {
+    saveInLocalStorage('callsInExecution', this.callsInExecution);
+  },
+  callsToProcess: loadFromLocalStorage('callsToProcess') || [],
+  isCallsToProcessEmpty() {
+    return this.callsToProcess.length === 0;
+  },
+  hasTargetFloorAmongCallsToProcess(targetFloor) {
+    return this.callsToProcess.includes(targetFloor);
+  },
+  getCallToProcess() { return this.callsToProcess[0]; },
+  addCallToProcess(targetFloor) {
+    // console.log('1 - addCallToProcess');
+    this.callsToProcess.push(targetFloor);
+
+    floors.setIsLiftCalled(targetFloor, true);
+
+    this.setCallsToProcessInLocalStorage();
+  },
+  setCallsToProcessInLocalStorage() {
+    saveInLocalStorage('callsToProcess', this.callsToProcess);
   },
 };
 
