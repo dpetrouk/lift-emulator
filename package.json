@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "private": true,
+  "homepage": "http://dpetrouk.github.io/lift-emulator",
   "scripts": {
     "build": "webpack",
     "start": "npm run build && webpack-dev-server --hot --open",
@@ -10,15 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dpetrouk/lift-emulator-test.git"
+    "url": "git+https://github.com/dpetrouk/lift-emulator.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/dpetrouk/lift-emulator-test/issues"
+    "url": "https://github.com/dpetrouk/lift-emulator/issues"
   },
-  "homepage": "https://github.com/dpetrouk/lift-emulator-test#readme",
   "dependencies": {
     "vue": "^3.2.40"
   },
