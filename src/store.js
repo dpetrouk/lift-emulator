@@ -9,7 +9,7 @@ const saveInLocalStorage = (property, value) => {
 const isBuildingConfigChanged = () => {
   if (liftShaftsCount !== (loadFromLocalStorage('liftShaftsCount') || liftShaftsCount)) {
     return true;
-  };
+  }
   if (floorsCount !== (loadFromLocalStorage('floorsCount') || floorsCount)) {
     return true;
   }
