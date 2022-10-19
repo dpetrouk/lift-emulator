@@ -60,6 +60,8 @@ const buttonChar = computed(() => (props.floorState.isLiftCalled.value ? '⦿' :
 
   font: inherit;
   font-weight: bold;
+
+  user-select: none;
 }
 
 button {
@@ -76,6 +78,7 @@ button {
   opacity: 1;
 
   cursor: pointer;
+  user-select: none;
 }
 
 button:hover {

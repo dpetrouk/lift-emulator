@@ -46,5 +46,7 @@ const movingDirection = computed(() => getDirectionArrow(props.movingDirection.v
   color: white;
 
   background-color: rgb(0, 0, 0, 0.4);
+
+  user-select: none;
 }
 </style>
