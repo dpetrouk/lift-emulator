@@ -6,6 +6,25 @@ const loadFromLocalStorage = (property) => JSON.parse(localStorage.getItem(prope
 const saveInLocalStorage = (property, value) => {
   localStorage.setItem(property, JSON.stringify(value));
 };
+const isBuildingConfigChanged = () => {
+  if (liftShaftsCount !== (loadFromLocalStorage('liftShaftsCount') || liftShaftsCount)) {
+    return true;
+  };
+  if (floorsCount !== (loadFromLocalStorage('floorsCount') || floorsCount)) {
+    return true;
+  }
+  return false;
+};
+
+const updateLocalStorageIfBuildingConfigChanged = () => {
+  if (isBuildingConfigChanged()) {
+    localStorage.clear();
+  }
+  saveInLocalStorage('liftShaftsCount', liftShaftsCount);
+  saveInLocalStorage('floorsCount', floorsCount);
+};
+
+updateLocalStorageIfBuildingConfigChanged();
 
 const lifts = {
   items: Array(liftShaftsCount)
