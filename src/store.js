@@ -3,12 +3,10 @@ import { liftShaftsCount, floorsCount } from './buildingConfig.js';
 
 const loadFromLocalStorage = (property) => {
   const data = JSON.parse(localStorage.getItem(property));
-  // console.log('loadFromLocalStorage: ', property, data);
   return data;
 };
 const saveInLocalStorage = (property, value) => {
   localStorage.setItem(property, JSON.stringify(value));
-  // console.log('saveInLocalStorage: ', property, value);
 };
 
 const lifts = {
@@ -19,7 +17,6 @@ const lifts = {
       state: ref(loadFromLocalStorage(`Lift${index + 1}State`) || 'available'), // other states: 'moving' / 'arrived'
       setState(value) {
         this.state.value = value;
-        // console.log('Lift ', index + 1, 'setState:', value);
         if (value === 'moving') {
           this.updateMovingDirection();
         }
@@ -88,7 +85,6 @@ const floors = {
     })),
   selectFloorState(floorIndex) { return this.items[floorIndex - 1]; },
   setIsLiftCalled(floorIndex, value) {
-    // console.log('selectFloorState:', this.selectFloorState(floorIndex));
     this.selectFloorState(floorIndex).isLiftCalled.value = value;
 
     saveInLocalStorage(`Floor${floorIndex}IsLiftCalled`, value);
@@ -101,11 +97,9 @@ const callQueue = {
   callsInExecution: loadFromLocalStorage('callsInExecution') || [],
   hasTargetFloorInProcessing(targetFloor) {
     const result = !!this.callsInExecution.find((item) => item.targetFloor === targetFloor);
-    // console.log('hasTargetFloorInProcessing: ', targetFloor, result);
     return result;
   },
   moveCallToCallsInExecution(liftId, targetFloor) {
-    // console.log('3 - moveCallToCallsInExecution');
     this.callsToProcess = this.callsToProcess.slice(1);
     this.callsInExecution.push({ liftId, targetFloor });
 
@@ -132,7 +126,6 @@ const callQueue = {
   },
   getCallToProcess() { return this.callsToProcess[0]; },
   addCallToProcess(targetFloor) {
-    // console.log('1 - addCallToProcess');
     this.callsToProcess.push(targetFloor);
 
     floors.setIsLiftCalled(targetFloor, true);

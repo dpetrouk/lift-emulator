@@ -4,7 +4,6 @@ import { floorsCount, liftCabinFlickeringDuration } from '../buildingConfig.js';
 import LiftCabin from './LiftCabin.vue';
 
 const props = defineProps(['lift']);
-// console.log('floorsDifference: ', props.lift.floorsDifference.value);
 
 const liftShaftGridColumn = computed(
   () => `${props.lift.id} / ${props.lift.id + 1}`,
@@ -16,7 +15,6 @@ const liftCabinGridRowStart = computed(
 
 const liftCabinMovingDuration = computed(() => props.lift.movingDuration.value);
 const liftCabinTransformValue = computed(() => `translateY(${props.lift.floorsDifference.value * 100 * (-1)}%)`);
-// console.log('liftCabinTransformValue: ', liftCabinTransformValue.value);
 
 const isLiftCabinFlickering = computed(() => props.lift.state.value === 'arrived');
 </script>

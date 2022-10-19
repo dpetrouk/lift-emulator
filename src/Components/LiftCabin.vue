@@ -25,8 +25,6 @@ const movingDirection = computed(() => getDirectionArrow(props.movingDirection.v
 <style>
 .lift-cabin {
   box-sizing: border-box;
-  /* width: 60px;
-  height: 80px; */
 
   border-radius: 4%;
 

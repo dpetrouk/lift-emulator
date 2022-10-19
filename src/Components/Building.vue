@@ -6,7 +6,6 @@ import LiftShaft from './LiftShaft.vue';
 import Floor from './Floor.vue';
 
 const moveSelectedLift = (lift, targetFloor) => {
-  // console.log('3 - moveSelectedLift');
   lift.setTargetFloor(targetFloor);
   lift.setState('moving');
   setTimeout(() => {
@@ -21,10 +20,8 @@ const moveSelectedLift = (lift, targetFloor) => {
 };
 
 const processCallQueue = () => {
-  // console.log('2 - processCallQueue');
   if (callQueue.isCallsToProcessEmpty()) {
     callQueue.setIsInProcessing(false);
-    // console.log('2 - call queue is empty, stopping call queue processing');
     return;
   }
   const targetFloor = callQueue.getCallToProcess();
@@ -43,16 +40,12 @@ const isCallToSkip = (targetFloor) => lifts.isLiftOnTargetFloor(targetFloor)
     || callQueue.hasTargetFloorAmongCallsToProcess(targetFloor);
 
 const processLiftCall = (targetFloor) => {
-  // console.log('-----------------------');
-  // console.log('1 - processLiftCall');
   if (isCallToSkip(targetFloor)) {
-    // console.log('1 - skipping call');
     return;
   }
   callQueue.addCallToProcess(targetFloor);
   if (!callQueue.isInProcessing) {
     callQueue.setIsInProcessing(true);
-    // console.log('1 - call queue is NOT in processing');
     processCallQueue();
   }
 };
@@ -61,7 +54,6 @@ const resumeProcesses = () => {
   callQueue.callsInExecution
     .forEach((call) => {
       const lift = lifts.selectLift(call.liftId);
-      // console.log({ lift });
       moveSelectedLift(lift, call.targetFloor);
     });
   lifts.items
@@ -71,8 +63,6 @@ const resumeProcesses = () => {
 };
 
 onMounted(() => {
-  // localStorage.clear();
-  // console.log('0 - callsInExecution: ', callQueue.callsInExecution);
   setTimeout(resumeProcesses, 30);
 });
 </script>
