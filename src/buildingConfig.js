@@ -1,5 +1,5 @@
-const floorsCount = 5;
-const liftShaftsCount = 1;
+const floorsCount = 9;
+const liftShaftsCount = 5;
 
 const liftCabinFlickeringDuration = 3;
 
