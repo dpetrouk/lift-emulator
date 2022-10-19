@@ -89,10 +89,14 @@ onMounted(() => {
 
 <style>
 .building {
+  margin: auto;
   padding: 2%;
 
+  width: fit-content;
+  height: fit-content;
+
   display: grid;
-  grid-template: repeat(v-bind(floorsCount), 1fr) / repeat(v-bind(liftShaftsCount + 1), 1fr);
+  grid-template: repeat(v-bind(floorsCount), 1fr) / repeat(v-bind(liftShaftsCount), 90px) 110px;
 
   font-family: sans-serif;
   font-size: 80%;

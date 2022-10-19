@@ -23,6 +23,8 @@ const buttonChar = computed(() => (props.floorState.isLiftCalled.value ? '⦿' :
 
 <style scoped>
 .floor {
+  height: 100px;
+
   display: grid;
   grid-template-rows: 1fr;
   grid-template-columns: repeat(v-bind(liftShaftsCount + 1), 1fr);
