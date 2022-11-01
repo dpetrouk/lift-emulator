@@ -2,7 +2,7 @@ name: deploy-to-github-pages
 on:
   push:
     branches:
-      - version-for-gh-pages
+      - main
   workflow_dispatch: 
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
         run: npm run build
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.ref == 'refs/heads/version-for-gh-pages' }}
+        if: ${{ github.ref == 'refs/heads/main' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
