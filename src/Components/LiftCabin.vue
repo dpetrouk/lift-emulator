@@ -5,8 +5,7 @@ const props = defineProps(['liftState', 'movingDirection', 'targetFloor']);
 
 const isDisplayBoardVisible = computed(() => props.liftState.value !== 'available');
 
-const getDirectionArrow = (value) => (value > 0 ? '🡡' : '🡣');
-const movingDirection = computed(() => getDirectionArrow(props.movingDirection.value));
+const isLiftCabinMovingUp = computed(() => props.movingDirection.value === 1);
 </script>
 
 <template>
@@ -17,14 +16,32 @@ const movingDirection = computed(() => getDirectionArrow(props.movingDirection.v
       class="lift-display-board"
       v-show="isDisplayBoardVisible"
     >
-      {{ `${movingDirection} ${targetFloor.value}` }}
+      <span v-if="isLiftCabinMovingUp">
+        <svg xmlns="http://www.w3.org/2000/svg" class="moving-direction" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="18" y1="11" x2="12" y2="5"></line>
+          <line x1="6" y1="11" x2="12" y2="5"></line>
+        </svg>
+      </span>
+      <span v-else>
+        <svg xmlns="http://www.w3.org/2000/svg" class="moving-direction" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="18" y1="13" x2="12" y2="19"></line>
+          <line x1="6" y1="13" x2="12" y2="19"></line>
+        </svg>
+      </span>
+      <span class="target-floor">{{ targetFloor.value }}</span>
     </div>
   </div>
 </template>
 
 <style>
 .lift-cabin {
+  border-style: double;
   border-radius: 4%;
+  border-color: rgb(124, 124, 124, 66%);
 
   background-color: rgb(164, 173, 164);
 }
@@ -32,8 +49,8 @@ const movingDirection = computed(() => getDirectionArrow(props.movingDirection.v
 .lift-display-board {
   position: absolute;
 
-  margin: 2% auto 0 auto;
-  padding: 1% 2% 1% 2%;
+  margin: 4% auto 0 auto;
+  padding: 1% 2% 3% 2%;
   left: 0;
   right: 0;
 
@@ -48,5 +65,13 @@ const movingDirection = computed(() => getDirectionArrow(props.movingDirection.v
   background-color: rgb(0, 0, 0, 0.4);
 
   user-select: none;
+}
+
+.moving-direction {
+  transform: translateY(3px);
+}
+
+.target-floor {
+  margin-right: 4px;
 }
 </style>
