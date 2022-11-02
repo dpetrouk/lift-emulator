@@ -32,7 +32,7 @@ const buttonChar = computed(() => (props.floorState.isLiftCalled.value ? '⦿' :
   border-color: #ebebeb;
   border-width: 0 1px 0 1px;
 
-  background-color: azure;
+  background-color: white;
 }
 .floor:not(first-child) {
   border-bottom-width: thin;
