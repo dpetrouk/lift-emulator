@@ -45,6 +45,7 @@ const buttonChar = computed(() => (props.floorState.isLiftCalled.value ? '⦿' :
   grid-column: v-bind(liftShaftsCount + 1) / v-bind(liftShaftsCount + 1 + 1);
 
   margin: 5px;
+  margin-left: 10px;
   padding: 3%;
   width: fit-content;
   height: fit-content;
@@ -58,6 +59,7 @@ const buttonChar = computed(() => (props.floorState.isLiftCalled.value ? '⦿' :
   margin: 5px;
 
   font: inherit;
+  font-size: 16px;
   font-weight: bold;
 
   user-select: none;
@@ -71,7 +73,7 @@ button {
   border-color: v-bind(buttonBorderColor);
   border-radius: 13%;
 
-  font-size: 14px;
+  font-size: 16px;
   color: rgb(83, 83, 83);
 
   opacity: 1;
