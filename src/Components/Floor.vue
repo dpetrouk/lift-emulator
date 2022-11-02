@@ -26,8 +26,7 @@ const buttonChar = computed(() => (props.floorState.isLiftCalled.value ? '⦿' :
   height: 100px;
 
   display: grid;
-  grid-template-rows: 1fr;
-  grid-template-columns: repeat(v-bind(liftShaftsCount + 1), 1fr);
+  grid-template: 1fr / repeat(v-bind(liftShaftsCount), 90px) 110px;
 
   border-style: solid;
   border-color: #ebebeb;
