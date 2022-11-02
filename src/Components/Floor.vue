@@ -32,7 +32,7 @@ const buttonChar = computed(() => (props.floorState.isLiftCalled.value ? '⦿' :
   border-color: #ebebeb;
   border-width: 0 1px 0 1px;
 
-  background-color: white;
+  background-color: #ffffff;
 }
 .floor:not(first-child) {
   border-bottom-width: thin;
@@ -52,7 +52,7 @@ const buttonChar = computed(() => (props.floorState.isLiftCalled.value ? '⦿' :
 
   border-radius: 9%;
 
-  background-color: rgb(228, 228, 228, 0.7);
+  background-color: #e4e4e4b3;
 }
 
 .floor-index {
@@ -74,7 +74,7 @@ button {
   border-radius: 13%;
 
   font-size: 16px;
-  color: rgb(83, 83, 83);
+  color: #535353;
 
   opacity: 1;
 

@@ -41,9 +41,9 @@ const isLiftCabinMovingUp = computed(() => props.movingDirection.value === 1);
 .lift-cabin {
   border-style: double;
   border-radius: 4%;
-  border-color: rgb(124, 124, 124, 66%);
+  border-color: #7c7c7ca8;
 
-  background-color: rgb(164, 173, 164);
+  background-color: #a4ada4;
 }
 
 .lift-display-board {
@@ -60,9 +60,9 @@ const isLiftCabinMovingUp = computed(() => props.movingDirection.value === 1);
   border-radius: 18%;
 
   font: inherit;
-  color: white;
+  color: #ffffff;
 
-  background-color: rgb(0, 0, 0, 0.4);
+  background-color: #00000066;
 
   user-select: none;
 }

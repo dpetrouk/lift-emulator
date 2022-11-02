@@ -49,7 +49,7 @@ const isLiftCabinFlickering = computed(() => props.lift.state.value === 'arrived
   grid-template-rows: repeat(v-bind(floorsCount), 1fr);
   grid-template-columns: 1fr;
 
-  background-color:rgb(209, 219, 219, 0.32);
+  background-color:#d1dbdb52;
 }
 
 .lift-cabin-position {

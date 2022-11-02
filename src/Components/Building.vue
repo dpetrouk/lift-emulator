@@ -102,7 +102,7 @@ onMounted(() => {
   font-family: sans-serif;
   font-size: 80%;
 
-  background-color: rgb(228, 228, 228, 0.3);
+  background-color: #e4e4e44d;
 }
 
 .lift-shafts {
