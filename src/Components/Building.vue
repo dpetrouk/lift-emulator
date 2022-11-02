@@ -73,6 +73,7 @@ onMounted(() => {
       <LiftShaft
         v-for="liftShaftIndex in liftShaftsCount"
         :key="liftShaftIndex"
+        :liftShaftIndex="liftShaftIndex"
         :lift="lifts.selectLift(liftShaftIndex)"
       />
     </div>

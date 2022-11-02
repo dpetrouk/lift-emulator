@@ -3,10 +3,10 @@ import { computed } from 'vue';
 import { floorsCount, liftCabinFlickeringDuration } from '../buildingConfig.js';
 import LiftCabin from './LiftCabin.vue';
 
-const props = defineProps(['lift']);
+const props = defineProps(['lift', 'liftShaftIndex']);
 
 const liftShaftGridColumn = computed(
-  () => `${props.lift.id} / ${props.lift.id + 1}`,
+  () => `${props.liftShaftIndex} / ${props.liftShaftIndex + 1}`,
 );
 const liftCabinGridRowStart = computed(
   () => floorsCount + 1 - props.lift.currentFloor.value,
